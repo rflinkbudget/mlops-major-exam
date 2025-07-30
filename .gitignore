@@ -1,0 +1,30 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Model files
+*.joblib
+*.pth
+
+# Jupyter/IPython checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+env/
+.venv/
+venv/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+*.tar
