@@ -11,7 +11,7 @@ def evaluate_model(y_true, y_pred):
     r2 = r2_score(y_true, y_pred)
     return mse, r2
 
-def dequantize(coef_q, intercept_q, scale=10.0):
+def dequantize(coef_q, intercept_q, scale=1.0):
     coef_dq = coef_q.astype(np.float32) / scale
     intercept_dq = intercept_q / scale
     return coef_dq, intercept_dq
