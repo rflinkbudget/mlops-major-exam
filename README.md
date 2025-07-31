@@ -36,7 +36,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
       pip install scikit-learn joblib numpy pytest
       pip freeze > requirements.txt
 
-2. GitHub Setup
+2. GitHub Setup:
    ------------
 
   2.1 Initialize Git & Connect to Remote Repo
@@ -55,9 +55,8 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
        *.joblib
        *.pth
 
-3. Main Branch Folder Structure:
-   mlops-major-exam/
-
+3. Main Branch Folder Structure (mlops-major-exam):
+   -----------------------------------------------
 ├── src/
 
 │ ├── train.py
@@ -79,30 +78,30 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 └── .github/workflows/ci.yml
    
 
-4. Project Initialization
--------------------------
+4. Project Initialization:
+   ----------------------
 
   3.1 Organized code into `src/` and `tests/`
   3.2 Initialized Git and GitHub repo with CI/CD
 
-5. Model Training (`train.py`)
-------------------------------
+5. Model Training (`train.py`):
+   ---------------------------
 
   5.1 Loaded California Housing data
   5.2 Trained `LinearRegression` model
   5.3 Evaluated using R² and MSE
   5.4 Saved model using `joblib`
 
-6. Unit Testing (`test_train.py`)
----------------------------------
+6. Unit Testing (`test_train.py`):
+   ------------------------------
 
   6.1 Verified data loading
   6.2 Checked model training and saving
   6.3 Ensured R² is above a minimum threshold
 
 
-7. Manual Quantization (`quantize.py`)
---------------------------------------
+7. Manual Quantization (`quantize.py`):
+   -----------------------------------
 
    7.1 Quantized model weights with:
 
@@ -119,6 +118,13 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
       | 3      | 2.8389               | -1975.52            | 2.8388                |
       | 4      | 2.6047               | -1964.39            | 2.6046                |
 
+    
+	#Model Size Comparison:
+	
+    Original model (model.pth)    : 0.67 KB
+    Quantized model (quant_params.joblib): 0.25 KB
+
+
    7.3 Explanation
 
      i.  "uint8" only allows values between 0–255.
@@ -127,7 +133,35 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
      iv.  supports **signed values** and a larger range, preserving both sign and scale.
           Hence, `int16` was chosen for final quantization.
 
-8. Dockerization
+8. Dockerization:
+   -------------
 
    Created `Dockerfile` to install deps, train, and run prediction
    Used `predict.py` for validation inside container
+   
+   #Build Docker Image
+   
+   docker build -t mlops-lr .
+   
+   #Running the container
+   
+   docker run --rm mlops-lr
+   
+   #Container Output
+   
+   2025-07-31 21:49:57 ✅ Sample Predictions: [0.71912284 1.76401657 2.70965883 2.83892593 2.60465725]
+
+
+9. CI/CD Workflow:
+   --------------
+   .github/workflows/ci.yml` defines 3 jobs:
+   
+   i.   test-suite(PyTest): This job runs all the unit tests written for model training. It checks if the data loads correctly, the model trains properly, and the saved model meets basic quality (like R² score).
+                            It ensures your core logic is working before moving forward.
+
+   ii.  train-and-quantize: Once tests pass, this job trains the model again and performs manual quantization using both uint8 and int16. 
+                            It validates the quantization process and prints predictions to compare with the original model — a key requirement in the assignment.
+						  
+   iii. build-and-test-container: Finally, this job builds a Docker image and runs your predict.py inside the container. 
+                                  It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment, 
+								  which is critical for MLOps deployment.
