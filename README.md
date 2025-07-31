@@ -80,7 +80,7 @@ mlops-major-exam/
 ├── .gitignore
 └── README.md
 
-   
+------------------------------------------------------------
 
 4. Project Initialization:
    ----------------------
