@@ -81,22 +81,28 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 4. Project Initialization:
    ----------------------
 
-  3.1 Organized code into `src/` and `tests/`
-  3.2 Initialized Git and GitHub repo with CI/CD
+  4.1 Organized code into `src/` and `tests/`
+  
+  4.2 Initialized Git and GitHub repo with CI/CD
 
 5. Model Training (`train.py`):
    ---------------------------
 
   5.1 Loaded California Housing data
+  
   5.2 Trained `LinearRegression` model
+  
   5.3 Evaluated using R² and MSE
+  
   5.4 Saved model using `joblib`
 
 6. Unit Testing (`test_train.py`):
    ------------------------------
 
   6.1 Verified data loading
+  
   6.2 Checked model training and saving
+  
   6.3 Ensured R² is above a minimum threshold
 
 
@@ -106,6 +112,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
    7.1 Quantized model weights with:
 
        `uint8`: incorrect due to negative values
+	   
        `int16`: accurate and preserves precision
 
    7.2 Compared original vs quantized predictions (Quantization Comparison Table)
@@ -122,21 +129,27 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 	#Model Size Comparison:
 	
     Original model (model.pth)    : 0.67 KB
+	
     Quantized model (quant_params.joblib): 0.25 KB
 
 
    7.3 Explanation
 
      i.  "uint8" only allows values between 0–255.
+	 
      ii.  Model coefficients include **negative values**, so casting to `uint8` caused **clipping/wrapping**.
+	 
      iii. This led to completely incorrect predictions.
+	 
      iv.  supports **signed values** and a larger range, preserving both sign and scale.
+	 
           Hence, `int16` was chosen for final quantization.
 
 8. Dockerization:
    -------------
 
    Created `Dockerfile` to install deps, train, and run prediction
+   
    Used `predict.py` for validation inside container
    
    #Build Docker Image
