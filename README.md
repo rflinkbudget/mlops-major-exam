@@ -176,5 +176,4 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
                                 It validates the quantization process and prints predictions to compare with the original model — a key requirement in the assignment.
 						  
        iii. build-and-test-container: Finally, this job builds a Docker image and runs your predict.py inside the container. 
-                                      It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment, 
-								      which is critical for MLOps deployment.
+                                      It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment which is critical for MLOps deployment.
