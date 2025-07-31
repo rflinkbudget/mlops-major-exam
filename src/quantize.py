@@ -40,9 +40,17 @@ pred_16bit = predict_with_weights(X_sample, coef_dq_16, intercept_dq_16)
 pred_original = model.predict(X_sample)
 
 # -------------------------------------
+
+original_model_size = os.path.getsize("model.pth") / 1024  # in KB
+quant_model_size = os.path.getsize("quant_params.joblib") / 1024  # in KB
+
+print("\n📦 Model Size Comparison")
+print(f"{'Original model (model.pth)':<30}: {original_model_size:.2f} KB")
+print(f"{'Quantized model (quant_params.joblib)':<30}: {quant_model_size:.2f} KB")
 # Print comparison table
 print("\n📊 Comparison Table")
 print(f"{'Index':<5} {'Original':>10} {'8-bit (uint8)':>18} {'16-bit (int16)':>18}")
 print("-" * 55)
 for i in range(5):
     print(f"{i:<5} {pred_original[i]:>10.4f} {pred_8bit[i]:>18.4f} {pred_16bit[i]:>18.4f}")
+
