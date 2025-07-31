@@ -4,7 +4,9 @@ ML Ops Major Exam\Assignment
 Submitted To:
 -------------
 Dr Pratik Mazumder: pratikm@iitj.ac.in
+
 Shubham Bagwari: p22cs201@iitj.ac.in
+
 Divyaansh Mertia: m23cse013@iitj.ac.in
 
 Submitted By:
@@ -81,9 +83,9 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 4. Project Initialization:
    ----------------------
 
-  4.1 Organized code into `src/` and `tests/`
+      4.1 Organized code into `src/` and `tests/`
   
-  4.2 Initialized Git and GitHub repo with CI/CD
+      4.2 Initialized Git and GitHub repo with CI/CD
 
 5. Model Training (`train.py`):
    ---------------------------
