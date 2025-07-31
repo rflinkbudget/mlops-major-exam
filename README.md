@@ -170,11 +170,11 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
        .github/workflows/ci.yml` defines 3 jobs:
    
        i.   test-suite(PyTest): This job runs all the unit tests written for model training. It checks if the data loads correctly, the model trains properly, and the saved model meets basic quality (like R² score).
-                            It ensures your core logic is working before moving forward.
+                                It ensures your core logic is working before moving forward.
 
        ii.  train-and-quantize: Once tests pass, this job trains the model again and performs manual quantization using both uint8 and int16. 
-                            It validates the quantization process and prints predictions to compare with the original model — a key requirement in the assignment.
+                                It validates the quantization process and prints predictions to compare with the original model — a key requirement in the assignment.
 						  
        iii. build-and-test-container: Finally, this job builds a Docker image and runs your predict.py inside the container. 
-                                  It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment, 
-								  which is critical for MLOps deployment.
+                                      It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment, 
+								      which is critical for MLOps deployment.
