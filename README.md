@@ -90,34 +90,34 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 5. Model Training (`train.py`):
    ---------------------------
 
-  5.1 Loaded California Housing data
+      5.1 Loaded California Housing data
   
-  5.2 Trained `LinearRegression` model
+      5.2 Trained `LinearRegression` model
   
-  5.3 Evaluated using R² and MSE
+      5.3 Evaluated using R² and MSE
   
-  5.4 Saved model using `joblib`
+      5.4 Saved model using `joblib`
 
 6. Unit Testing (`test_train.py`):
    ------------------------------
 
-  6.1 Verified data loading
+      6.1 Verified data loading
   
-  6.2 Checked model training and saving
+      6.2 Checked model training and saving
   
-  6.3 Ensured R² is above a minimum threshold
+      6.3 Ensured R² is above a minimum threshold
 
 
 7. Manual Quantization (`quantize.py`):
    -----------------------------------
 
-   7.1 Quantized model weights with:
+      7.1 Quantized model weights with:
 
-       `uint8`: incorrect due to negative values
-	   
-       `int16`: accurate and preserves precision
+            `uint8`: incorrect due to negative values
+	     
+            `int16`: accurate and preserves precision
 
-   7.2 Compared original vs quantized predictions (Quantization Comparison Table)
+      7.2 Compared original vs quantized predictions (Quantization Comparison Table)
 
       | Sample | Original Prediction | Quantized (`uint8`)  | Quantized (`int16`)   |
       |--------|----------------------|---------------------|---------------------- |
@@ -128,55 +128,53 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
       | 4      | 2.6047               | -1964.39            | 2.6046                |
 
     
-	#Model Size Comparison:
+	  7.3 Model Size Comparison:
 	
-    Original model (model.pth)    : 0.67 KB
+           Original model (model.pth)    : 0.67 KB
 	
-    Quantized model (quant_params.joblib): 0.25 KB
+           Quantized model (quant_params.joblib): 0.25 KB
 
 
    7.3 Explanation
 
-     i.  "uint8" only allows values between 0–255.
+           i.  "uint8" only allows values between 0–255.
 	 
-     ii.  Model coefficients include **negative values**, so casting to `uint8` caused **clipping/wrapping**.
+           ii.  Model coefficients include **negative values**, so casting to `uint8` caused **clipping/wrapping**.
 	 
-     iii. This led to completely incorrect predictions.
+           iii. This led to completely incorrect predictions.
 	 
-     iv.  supports **signed values** and a larger range, preserving both sign and scale.
-	 
-          Hence, `int16` was chosen for final quantization.
+           iv.  supports **signed values** and a larger range, preserving both sign and scale. Hence, `int16` was chosen for final quantization.
 
 8. Dockerization:
    -------------
 
-   Created `Dockerfile` to install deps, train, and run prediction
+        Created `Dockerfile` to install deps, train, and run prediction
    
-   Used `predict.py` for validation inside container
+        Used `predict.py` for validation inside container
    
-   #Build Docker Image
+       #Build Docker Image
    
-   docker build -t mlops-lr .
+       docker build -t mlops-lr .
    
-   #Running the container
+       #Running the container
    
-   docker run --rm mlops-lr
+       docker run --rm mlops-lr
+    
+       #Container Output
    
-   #Container Output
-   
-   2025-07-31 21:49:57 ✅ Sample Predictions: [0.71912284 1.76401657 2.70965883 2.83892593 2.60465725]
+       2025-07-31 21:49:57 ✅ Sample Predictions: [0.71912284 1.76401657 2.70965883 2.83892593 2.60465725]
 
 
 9. CI/CD Workflow:
    --------------
-   .github/workflows/ci.yml` defines 3 jobs:
+       .github/workflows/ci.yml` defines 3 jobs:
    
-   i.   test-suite(PyTest): This job runs all the unit tests written for model training. It checks if the data loads correctly, the model trains properly, and the saved model meets basic quality (like R² score).
+       i.   test-suite(PyTest): This job runs all the unit tests written for model training. It checks if the data loads correctly, the model trains properly, and the saved model meets basic quality (like R² score).
                             It ensures your core logic is working before moving forward.
 
-   ii.  train-and-quantize: Once tests pass, this job trains the model again and performs manual quantization using both uint8 and int16. 
+       ii.  train-and-quantize: Once tests pass, this job trains the model again and performs manual quantization using both uint8 and int16. 
                             It validates the quantization process and prints predictions to compare with the original model — a key requirement in the assignment.
 						  
-   iii. build-and-test-container: Finally, this job builds a Docker image and runs your predict.py inside the container. 
+       iii. build-and-test-container: Finally, this job builds a Docker image and runs your predict.py inside the container. 
                                   It confirms that your entire pipeline — from training to inference — works in a portable, reproducible environment, 
 								  which is critical for MLOps deployment.
