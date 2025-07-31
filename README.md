@@ -60,27 +60,27 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 3. Main Branch Folder Structure (mlops-major-exam):
    -----------------------------------------------
    
-```text
-mlops-major-exam/
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── src/
-│   ├── train.py
-│   ├── quantize.py
-│   ├── predict.py
-│   └── utils.py
-│
-├── tests/
-│   └── test_train.py
-│
-├── Dockerfile
-├── requirements.txt
-├── .gitignore
-└── README.md
+   ```text
+   mlops-major-exam/
+   ├── .github/
+   │   └── workflows/
+   │       └── ci.yml
+   │
+   ├── src/
+   │   ├── train.py
+   │   ├── quantize.py
+   │   ├── predict.py
+   │   └── utils.py
+   │
+   ├── tests/
+   │   └── test_train.py
+   │
+   ├── Dockerfile
+   ├── requirements.txt
+   ├── .gitignore
+   └── README.md
 
-------------------------------------------------------------
+
 
 4. Project Initialization:
    ----------------------
