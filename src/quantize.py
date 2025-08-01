@@ -1,56 +1,99 @@
-import sys
 import os
+import sys
+#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import joblib
 import numpy as np
-from sklearn.model_selection import train_test_split
-from src.utils import load_data, dequantize, predict_with_weights
+import joblib
+from src import my_utils as utils
+  # Importing entire utils module
 
-# Load model and data
-model = joblib.load("model.pth")
-X, y = load_data()
-_, X_test, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
-X_sample = X_test[:5]
+def quantize_main():
+    print("\n🔧 Loading trained model...")
+    model = utils.retrieve_model("model.pth")
 
-# Extract weights
-coef = model.coef_
-intercept = model.intercept_
+    # Extract weights
+    coef = model.coef_
+    intercept = model.intercept_
+    print(f"Model coefficients: {coef.shape}, Intercept: {intercept:.6f}")
 
-# -------------------------------------
-# ❌ UINT8 Quantization
-coef_q_8 = np.clip((coef * 10).astype(np.uint8), 0, 255)
-intercept_q_8 = np.clip(int(intercept * 10), 0, 255)
+    # Save original unquantized parameters
+    os.makedirs("models", exist_ok=True)
+    joblib.dump({'coef': coef, 'intercept': intercept}, "models/unquant_params.joblib")
 
-coef_dq_8, intercept_dq_8 = dequantize(coef_q_8, intercept_q_8, scale=10)
-pred_8bit = predict_with_weights(X_sample, coef_dq_8, intercept_dq_8)
+    # Quantize to 8-bit using min-max scaling
+    q_coef, coef_min, coef_max = utils.compress_to_uint8(coef)
+    q_intercept, int_min, int_max = utils.compress_to_uint8(np.array([intercept]))
 
-# -------------------------------------
-# ✅ INT16 Quantization
-scale_factor = 1000
-coef_q_16 = np.round(coef * scale_factor).astype(np.int16)
-intercept_q_16 = int(round(intercept * scale_factor))
+    quant_params = {
+        'quant_coef8': q_coef,
+        'coef8_min': coef_min,
+        'coef8_max': coef_max,
+        'quant_intercept8': q_intercept[0],
+        'intercept_min': int_min,
+        'intercept_max': int_max
+    }
+    joblib.dump(quant_params, "models/quant_params.joblib", compress=3)
 
-joblib.dump((coef_q_16, intercept_q_16), "quant_params.joblib")
-coef_dq_16, intercept_dq_16 = dequantize(coef_q_16, intercept_q_16, scale=scale_factor)
-pred_16bit = predict_with_weights(X_sample, coef_dq_16, intercept_dq_16)
+    # File size comparison
+    size_orig = os.path.getsize("model.pth") / 1024
+    size_quant = os.path.getsize("models/quant_params.joblib") / 1024
+    print(f"\n📦 Original model size: {size_orig:.2f} KB")
+    print(f"📦 Quantized model size: {size_quant:.2f} KB")
 
-# -------------------------------------
-# Original model prediction
-pred_original = model.predict(X_sample)
+    # Dequantize for testing
+    d_coef = utils.decompress_from_uint8(q_coef, coef_min, coef_max)
+    d_intercept = utils.decompress_from_uint8(np.array([quant_params['quant_intercept8']]),
+                                              np.array([int_min]),
+                                              np.array([int_max]))[0]
 
-# -------------------------------------
+    # Error check
+    coef_error = np.abs(coef - d_coef).max()
+    intercept_error = abs(intercept - d_intercept)
+    print(f"\n⚠️  Max coef error: {coef_error:.6f}")
+    print(f"⚠️  Intercept error: {intercept_error:.6f}")
 
-original_model_size = os.path.getsize("model.pth") / 1024  # in KB
-quant_model_size = os.path.getsize("quant_params.joblib") / 1024  # in KB
+    # Run inference on test data
+    X_train, X_test, y_train, y_test = utils.fetch_data_split()
+    preds_quant = X_test @ d_coef + d_intercept
+    preds_orig = model.predict(X_test)
 
-print("\n📦 Model Size Comparison")
-print(f"{'Original model (model.pth)':<30}: {original_model_size:.2f} KB")
-print(f"{'Quantized model (quant_params.joblib)':<30}: {quant_model_size:.2f} KB")
-# Print comparison table
-print("\n📊 Comparison Table")
-print(f"{'Index':<5} {'Original':>10} {'8-bit (uint8)':>18} {'16-bit (int16)':>18}")
-print("-" * 55)
-for i in range(5):
-    print(f"{i:<5} {pred_original[i]:>10.4f} {pred_8bit[i]:>18.4f} {pred_16bit[i]:>18.4f}")
+    diff = np.abs(preds_orig - preds_quant)
+    print(f"\n📊 Inference difference (original vs quantized)")
+    print(f"Max diff: {diff.max():.6f}")
+    print(f"Mean diff: {diff.mean():.6f}")
+    if diff.max() < 0.1:
+        print("✅ Quantization quality: excellent")
+    elif diff.max() < 1.0:
+        print("✅ Quantization quality: acceptable")
+    else:
+        print("❌ Quantization quality: poor")
 
+    # Performance metrics
+    r2_quant, mse_quant = utils.compute_scores(y_test, preds_quant)
+    print(f"\n📈 Quantized Model Metrics:")
+    print(f"R² Score: {r2_quant:.4f}")
+    print(f"MSE     : {mse_quant:.4f}")
+
+    print("\n✅ Quantization process complete!\n")
+    print("✅ Loading utils from:", utils.__file__)
+    
+    # Print parameter comparison table
+    print("\n📌 Parameter Comparison Table")
+    print(f"{'Index':<5} {'Original Coef':>18} {'Dequantized Coef':>22}")
+    print("-" * 50)
+    for i, (orig_c, quant_c) in enumerate(zip(coef, d_coef)):
+        print(f"{i:<5} {orig_c:>18.6f} {quant_c:>22.6f}")
+
+    print(f"\n{'Intercept':<5} {intercept:>18.6f} {d_intercept:>22.6f}")
+    
+    # Print prediction comparison
+    print("\n📊 Prediction Comparison (first 5 samples)")
+    print(f"{'Index':<5} {'Original Pred':>15} {'Quantized Pred':>20}")
+    print("-" * 45)
+    for i in range(5):
+        print(f"{i:<5} {preds_orig[i]:>15.4f} {preds_quant[i]:>20.4f}")
+
+
+if __name__ == "__main__":
+    quantize_main()
