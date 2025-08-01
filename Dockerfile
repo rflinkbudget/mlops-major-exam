@@ -10,5 +10,8 @@ COPY src/ ./src/
 # Train the model during image build
 RUN python src/train.py
 
+# Train the model during image build
+RUN python src/quantize.py
+
 # Set default entry point to run predictions
 CMD ["python", "src/predict.py"]
