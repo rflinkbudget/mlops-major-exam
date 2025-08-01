@@ -111,9 +111,11 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 
 
 7. Manual Quantization (`quantize.py`):
+
    -----------------------------------
    
 	7.1 Model Size Comparison Table
+	
 		---------------------------
 		
 		This table compares the storage size of the original model vs. its quantized version.
@@ -125,6 +127,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 		| Quantized model (8-bit) | 0.51 KB   |
 
 	7.2 Quantization Accuracy
+	
 		---------------------
 		
 		This section evaluates how much error was introduced during quantization.
@@ -139,6 +142,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 		| Quantization Quality       | Acceptable   |
 
 	 7.3 Performance Metrics Comparison Table
+	 
 		 ------------------------------------
 		 
 		Shows how the quantized model performs compared to the original trained model.
@@ -151,6 +155,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 
 
 	7.4 Coefficient Comparison Table
+	
 		----------------------------
 		
 		Displays original and dequantized coefficients side by side.
@@ -169,6 +174,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
 		| **Intercept** | **-37.023278** | **-37.023239**   |
 
 	7.5 Prediction Comparison (First 5 Samples) Table
+	
 		----------------------------------------------
 		
 		Compares predictions from the original and quantized models on sample data.
