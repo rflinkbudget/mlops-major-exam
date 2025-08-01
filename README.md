@@ -70,7 +70,7 @@ quantization, Dockerization, and CI/CD — all managed within a single main bran
    │   ├── train.py
    │   ├── quantize.py
    │   ├── predict.py
-   │   └── utils.py
+   │   └── my_utils.py
    │
    ├── tests/
    │   └── test_train.py
